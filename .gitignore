@@ -1,0 +1,23 @@
+# Python bytecode and caches
+__pycache__/
+*.pyc
+*.pyo
+
+# Local IDE / editor
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Built artifacts (the user zips skills themselves; we don't track prebuilt zips)
+*.zip
+dist/
+
+# Logs / temp files
+*.log
+*.tmp
+*.bak
+
+# Environment / secrets
+.env
+.env.local

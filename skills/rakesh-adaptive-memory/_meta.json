@@ -1,0 +1,14 @@
+{
+  "author": "Rakesh",
+  "created": "2026-09-02",
+  "description": "Persistent memory, semantic search, knowledge graph, and memory Q&A via the Adaptive Memory MCP server.",
+  "name": "rakesh-adaptive-memory",
+  "platform": "minimax",
+  "tags": [
+    "mcp",
+    "memory",
+    "semantic-search",
+    "knowledge-graph"
+  ],
+  "version": "1.0.0"
+}

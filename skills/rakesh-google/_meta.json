@@ -1,0 +1,15 @@
+{
+  "author": "Rakesh",
+  "created": "2026-09-02",
+  "description": "Read and modify Gmail, Google Calendar, Google Drive, and other Google services via the remote Google MCP server.",
+  "name": "rakesh-google",
+  "platform": "minimax",
+  "tags": [
+    "mcp",
+    "google",
+    "gmail",
+    "calendar",
+    "drive"
+  ],
+  "version": "1.0.0"
+}

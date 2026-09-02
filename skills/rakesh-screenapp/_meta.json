@@ -1,0 +1,14 @@
+{
+  "author": "Rakesh",
+  "created": "2026-09-02",
+  "description": "List ScreenApp recordings, fetch transcripts, inspect recording metadata, and ask questions about recording contents.",
+  "name": "rakesh-screenapp",
+  "platform": "minimax",
+  "tags": [
+    "mcp",
+    "screenapp",
+    "transcript",
+    "recordings"
+  ],
+  "version": "1.0.0"
+}

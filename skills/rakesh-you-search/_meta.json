@@ -1,0 +1,14 @@
+{
+  "author": "Rakesh",
+  "created": "2026-09-02",
+  "description": "Live web search, deep research, and page-content extraction via the You.com MCP server.",
+  "name": "rakesh-you-search",
+  "platform": "minimax",
+  "tags": [
+    "mcp",
+    "web-search",
+    "research",
+    "youcom"
+  ],
+  "version": "1.0.0"
+}

@@ -1,0 +1,14 @@
+{
+  "author": "Rakesh",
+  "created": "2026-09-02",
+  "description": "Live web search, scraping, structured data extraction, and browser automation via the Bright Data MCP server.",
+  "name": "rakesh-brightdata",
+  "platform": "minimax",
+  "tags": [
+    "mcp",
+    "web-search",
+    "scraping",
+    "browser-automation"
+  ],
+  "version": "1.0.0"
+}
