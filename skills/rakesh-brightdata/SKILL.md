@@ -3,7 +3,7 @@ name: rakesh-brightdata
 description: Live web search, scraping, structured data extraction, and browser automation via the Bright Data MCP server. Use when the user asks to fetch a URL, run a search engine query, extract structured data from a page, or drive a browser through a multi-step workflow.
 license: MIT
 metadata:
-  version: "1.0.1"
+  version: "1.0.2"
   category: mcp
   server: brightdata
 ---

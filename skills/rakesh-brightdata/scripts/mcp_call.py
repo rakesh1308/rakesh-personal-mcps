@@ -13,6 +13,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import http.client
 import json
 import os
 import pathlib
@@ -27,7 +28,10 @@ from urllib.parse import urlparse
 # Inlined MCP Streamable HTTP transport (self-contained).
 PROTOCOL_VERSION = "2024-11-05"
 CLIENT_NAME = "rakesh-brightdata-skill"
-CLIENT_VERSION = "1.2.0"
+CLIENT_VERSION = "1.3.0"
+
+# Connectivity faults worth one silent retry on a fresh connection.
+TRANSIENT_ERRORS = (http.client.RemoteDisconnected, ConnectionResetError, TimeoutError)
 
 
 class McpError(RuntimeError):
@@ -66,25 +70,37 @@ class HttpMcpClient:
 
     def _request(self, payload):
         request_id = payload.get("id")
-        req = urlrequest.Request(
-            self.endpoint,
-            data=json.dumps(payload).encode("utf-8"),
-            headers=self._headers(),
-            method="POST",
-        )
-        try:
-            with urlrequest.urlopen(req, timeout=self.timeout) as response:
-                sid = response.headers.get("Mcp-Session-Id")
-                if sid:
-                    self.session_id = sid
-                raw = response.read().decode("utf-8", errors="replace")
-        except HTTPError as exc:
-            raw = exc.read().decode("utf-8", errors="replace")
-            raise McpError(f"HTTP {exc.code} from {self.endpoint}: {raw.strip()[:500]}") from exc
-        except URLError as exc:
-            raise McpError(f"Could not connect to {self.endpoint}: {exc.reason}") from exc
-        except TimeoutError as exc:
-            raise McpError(f"Timed out connecting to {self.endpoint} after {self.timeout:g}s") from exc
+        last_transient = None
+        raw = None
+        for _ in (1, 2):
+            req = urlrequest.Request(
+                self.endpoint,
+                data=json.dumps(payload).encode("utf-8"),
+                headers=self._headers(),
+                method="POST",
+            )
+            try:
+                with urlrequest.urlopen(req, timeout=self.timeout) as response:
+                    sid = response.headers.get("Mcp-Session-Id")
+                    if sid:
+                        self.session_id = sid
+                    raw = response.read().decode("utf-8", errors="replace")
+                break
+            except TRANSIENT_ERRORS as exc:
+                last_transient = exc
+                self.session_id = None  # stale session may be the cause; reconnect clean
+                continue
+            except HTTPError as exc:
+                raw = exc.read().decode("utf-8", errors="replace")
+                raise McpError(f"HTTP {exc.code} from {self.endpoint}: {raw.strip()[:500]}") from exc
+            except URLError as exc:
+                if isinstance(exc.reason, TRANSIENT_ERRORS):
+                    last_transient = exc.reason
+                    self.session_id = None
+                    continue
+                raise McpError(f"Could not connect to {self.endpoint}: {exc.reason}") from exc
+        else:
+            raise McpError(f"{self.endpoint} dropped the connection twice (last: {last_transient})")
         if not raw.strip():
             return {}
         return _last_message(raw, request_id)
@@ -204,14 +220,14 @@ def _disk_store(payload):
         return
     try:
         path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
-    except OSError:
-        pass
+    except (OSError, TypeError, ValueError):
+        pass  # cache is best-effort; a write failure must never fail the call
 
 
 def get_tools(client, *, ttl=DEFAULT_TTL, refresh=False):
-    key = (client.endpoint, _auth_fingerprint(client))
+    key = f"{client.endpoint}|{_auth_fingerprint(client)}"
     now = time.time()
-    meta = {"source": "network", "ttl": ttl, "endpoint": client.endpoint}
+    meta = {"source": "network", "ttl": ttl, "endpoint": client.endpoint, "key": key}
     if ttl < 0:
         tools = client.list_tools()
         meta["age"] = 0
@@ -249,12 +265,12 @@ def invalidate(endpoint=None):
             except OSError:
                 pass
         return removed
-    for key in [k for k in _CACHE if k[0] == endpoint]:
+    for key in [k for k in _CACHE if k.split("|", 1)[0] == endpoint]:
         _CACHE.pop(key, None)
         removed += 1
     disk = _disk_load()
-    disk.pop((endpoint, "anon"), None)
-    disk.pop((endpoint, "authed"), None)
+    disk.pop(f"{endpoint}|anon", None)
+    disk.pop(f"{endpoint}|authed", None)
     _disk_store(disk)
     return removed
 
