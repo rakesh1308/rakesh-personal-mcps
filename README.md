@@ -28,16 +28,18 @@ Every skill folder follows the standard MiniMax Agent Skills layout:
 
 ## Authentication
 
-Each skill reads its Bearer token from an environment variable. Set these
-in your shell before running any of the bundled scripts:
+Only You.com actually benefits from an API key (the key unlocks the full tool
+set; the free anonymous profile exposes just `you-search` and `you-discover`).
+The other four Zeabur-hosted servers accept anonymous calls — tokens are
+optional. If a token env var is set, it is sent as a Bearer header.
 
-| Server | Environment variable |
-|---|---|
-| Adaptive Memory | `ADAPTIVE_MEMORY_TOKEN` |
-| Google | `GOOGLE_MCP_TOKEN` |
-| Bright Data | `BRIGHTDATA_MCP_TOKEN` |
-| ScreenApp | `SCREENAPP_TOKEN` (falls back to `SCREENAPP_API_TOKEN`) |
-| You.com | `YDC_API_KEY` (otherwise the public free profile is used) |
+| Server | Environment variable | Required |
+|---|---|---|
+| Adaptive Memory | `ADAPTIVE_MEMORY_TOKEN` | No |
+| Google | `GOOGLE_MCP_TOKEN` | No |
+| Bright Data | `BRIGHTDATA_MCP_TOKEN` | No |
+| ScreenApp | `SCREENAPP_TOKEN` (falls back to `SCREENAPP_API_TOKEN`) | No |
+| You.com | `YDC_API_KEY` | No (free profile = 2 tools; key = full set) |
 
 ## Using a skill
 
@@ -48,7 +50,9 @@ python scripts/mcp_call.py discover
 python scripts/mcp_call.py call --tool search_engine --args '{"query":"latest minimax models"}'
 ```
 
-Discovery is cached for 5 minutes per endpoint. Pass `--refresh` to bypass.
+Discovery is cached for 5 minutes per endpoint. Note that global flags
+(`--ttl`, `--refresh`, `--timeout`) must come **before** the subcommand —
+e.g. `python scripts/mcp_call.py --ttl -1 discover`, not `discover --ttl -1`.
 
 ## Updating
 

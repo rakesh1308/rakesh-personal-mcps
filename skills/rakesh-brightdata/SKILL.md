@@ -3,7 +3,7 @@ name: rakesh-brightdata
 description: Live web search, scraping, structured data extraction, and browser automation via the Bright Data MCP server. Use when the user asks to fetch a URL, run a search engine query, extract structured data from a page, or drive a browser through a multi-step workflow.
 license: MIT
 metadata:
-  version: "1.0.2"
+  version: "1.0.3"
   category: mcp
   server: brightdata
 ---
@@ -15,7 +15,7 @@ Reach the public web through Bright Data's MCP server: search, scrape, extract, 
 ## Endpoint
 
 - URL: `https://brightdata-mcp-server.zeabur.app/mcp`
-- Auth: Bearer token from the `BRIGHTDATA_MCP_TOKEN` environment variable.
+- Auth: **works anonymously** — no token required (verified 2026-09-02: 9 tools listed with no credentials). If `BRIGHTDATA_MCP_TOKEN` is set in the environment it is sent as a Bearer token.
 
 ## Workflow
 
@@ -28,16 +28,18 @@ Reach the public web through Bright Data's MCP server: search, scrape, extract, 
 
 ## Bundled script
 
-The `scripts/mcp_call.py` helper runs `discover` / `call` against this endpoint and validates the tool against the live tool list before each call.
+The `scripts/mcp_call.py` helper runs `discover` / `call` against this endpoint and validates the tool against the live tool list before each call. Global flags (`--ttl`, `--refresh`, `--timeout`) come **before** the subcommand.
 
 ```bash
 python <SKILL_DIR>/scripts/mcp_call.py discover
+python <SKILL_DIR>/scripts/mcp_call.py --ttl -1 discover          # force fresh discovery
 python <SKILL_DIR>/scripts/mcp_call.py call --tool search_engine --args '{"query":"latest minimax models"}'
 ```
 
 ## Failure handling
 
 - Unknown tool → re-run `tools/list` and choose from the current set.
-- `401` or `403` → set `BRIGHTDATA_MCP_TOKEN` in the environment; do not print its value.
+- `401` or `403` → the server rejected the anonymous/guest identity for this action; if `BRIGHTDATA_MCP_TOKEN` is available, set it in the environment and retry. Do not print its value.
 - Schema mismatch → re-check the live `inputSchema` casing and required fields.
 - Pagination cursor repeated → abort and report, do not loop.
+- A transient connection drop is retried once automatically; a second failure reported as `dropped the connection twice` is a network/server issue — retry later.

@@ -3,7 +3,7 @@ name: rakesh-google
 description: Read and modify Gmail, Google Calendar, Google Drive, and other Google services exposed by the remote Google MCP server. Use when the user asks to send or read email, list or create calendar events, upload or fetch Drive files, or query another Google API endpoint the server exposes.
 license: MIT
 metadata:
-  version: "1.0.2"
+  version: "1.0.3"
   category: mcp
   server: google
 ---
@@ -15,7 +15,7 @@ Reach Gmail, Calendar, Drive, and other Google services through the Google MCP s
 ## Endpoint
 
 - URL: `https://google-mcp.zeabur.app/mcp`
-- Auth: Bearer token from the `GOOGLE_MCP_TOKEN` environment variable.
+- Auth: **works anonymously** — no token required (verified 2026-09-02: 5 tools listed with no credentials). If `GOOGLE_MCP_TOKEN` is set in the environment it is sent as a Bearer token, but a missing key is not an error.
 
 ## Workflow
 
@@ -28,16 +28,18 @@ Reach Gmail, Calendar, Drive, and other Google services through the Google MCP s
 
 ## Bundled script
 
-The `scripts/mcp_call.py` helper runs `discover` / `call` against this endpoint and validates the tool against the live tool list before each call.
+The `scripts/mcp_call.py` helper runs `discover` / `call` against this endpoint and validates the tool against the live tool list before each call. Global flags (`--ttl`, `--refresh`, `--timeout`) come **before** the subcommand.
 
 ```bash
 python <SKILL_DIR>/scripts/mcp_call.py discover
+python <SKILL_DIR>/scripts/mcp_call.py --ttl -1 discover          # force fresh discovery
 python <SKILL_DIR>/scripts/mcp_call.py call --tool list_events --args '{"calendarId":"primary","maxResults":10}'
 ```
 
 ## Failure handling
 
 - Unknown tool → re-run `tools/list` and choose from the current set.
-- `401` or `403` → set `GOOGLE_MCP_TOKEN` in the environment; do not print its value.
+- `401` or `403` → the server rejected the anonymous/guest identity for this action; if `GOOGLE_MCP_TOKEN` is available, set it in the environment and retry. Do not print its value.
 - Schema mismatch → re-check the live `inputSchema` casing and required fields.
 - Pagination cursor repeated → abort and report, do not loop.
+- A transient connection drop is retried once automatically; a second failure reported as `dropped the connection twice` is a network/server issue — retry later.
