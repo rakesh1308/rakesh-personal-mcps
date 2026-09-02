@@ -3,7 +3,7 @@ name: rakesh-google
 description: Read and modify Gmail, Google Calendar, Google Drive, and other Google services exposed by the remote Google MCP server. Use when the user asks to send or read email, list or create calendar events, upload or fetch Drive files, or query another Google API endpoint the server exposes.
 license: MIT
 metadata:
-  version: "1.0.3"
+  version: "1.0.4"
   category: mcp
   server: google
 ---

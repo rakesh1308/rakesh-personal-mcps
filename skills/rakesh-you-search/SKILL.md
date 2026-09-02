@@ -3,7 +3,7 @@ name: rakesh-you-search
 description: Live web search, deep research, and page-content extraction via the You.com MCP server. Use when the user asks for a live search, wants a multi-step research synthesis, or needs the cleaned-up markdown content of a specific URL.
 license: MIT
 metadata:
-  version: "1.0.3"
+  version: "1.0.4"
   category: mcp
   server: you-search
 ---

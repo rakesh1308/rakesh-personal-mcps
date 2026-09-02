@@ -17,6 +17,7 @@ import http.client
 import json
 import os
 import pathlib
+import ssl
 import sys
 import time
 import uuid
@@ -28,10 +29,11 @@ from urllib.parse import urlparse
 # Inlined MCP Streamable HTTP transport (self-contained).
 PROTOCOL_VERSION = "2024-11-05"
 CLIENT_NAME = "rakesh-you-search-skill"
-CLIENT_VERSION = "1.3.0"
+CLIENT_VERSION = "1.3.1"
 
 # Connectivity faults worth one silent retry on a fresh connection.
-TRANSIENT_ERRORS = (http.client.RemoteDisconnected, ConnectionResetError, TimeoutError)
+# ssl.SSLError covers TLS EOF / premature TLS closes seen behind proxies (Zeabur, you.com).
+TRANSIENT_ERRORS = (http.client.RemoteDisconnected, ConnectionResetError, TimeoutError, ssl.SSLError)
 
 
 class McpError(RuntimeError):
@@ -276,7 +278,8 @@ def invalidate(endpoint=None):
 
 
 ALIAS = 'you_search'
-ENDPOINT = 'https://api.you.com/mcp?profile=free'
+FREE_ENDPOINT = 'https://api.you.com/mcp?profile=free'
+AUTH_ENDPOINT = 'https://api.you.com/mcp'
 PRIMARY_TOKEN_ENV = 'YDC_API_KEY'
 
 
@@ -284,6 +287,12 @@ PRIMARY_TOKEN_ENV = 'YDC_API_KEY'
 def _token():
     value = os.environ.get(PRIMARY_TOKEN_ENV) or ""
     return value or None
+
+
+def _endpoint():
+    # You.com is the one server with distinct anonymous vs authenticated URLs:
+    # public free profile without a key, full server with YDC_API_KEY set.
+    return AUTH_ENDPOINT if _token() else FREE_ENDPOINT
 
 
 def _build_parser():
@@ -327,7 +336,9 @@ def main():
         if args.command == "info":
             info = {
                 "alias": ALIAS,
-                "endpoint": ENDPOINT,
+                "endpoint": _endpoint(),
+                "free_endpoint": FREE_ENDPOINT,
+                "auth_endpoint": AUTH_ENDPOINT,
                 "token_env": PRIMARY_TOKEN_ENV,
                 "token_configured": bool(_token()),
                 "cache_ttl": args.ttl,
@@ -335,11 +346,11 @@ def main():
             print(json.dumps(info, indent=2))
             return 0
         if args.command == "invalidate-cache":
-            removed = invalidate(None if args.all else ENDPOINT)
+            removed = invalidate(None if args.all else _endpoint())
             print(json.dumps({"ok": True, "removed": removed}, indent=2))
             return 0
         client = HttpMcpClient(
-            ENDPOINT,
+            _endpoint(),
             token=_token(),
             timeout=args.timeout,
             allow_insecure_http=args.allow_http,
@@ -352,7 +363,7 @@ def main():
             print(json.dumps({
                 "ok": True,
                 "server": ALIAS,
-                "endpoint": ENDPOINT,
+                "endpoint": _endpoint(),
                 "tool_count": len(tools),
                 "cache": meta,
                 "tools": tools,
@@ -368,7 +379,7 @@ def main():
             print(json.dumps({
                 "ok": not bool(result.get("isError")),
                 "server": ALIAS,
-                "endpoint": ENDPOINT,
+                "endpoint": _endpoint(),
                 "tool": args.tool,
                 "arguments": tool_args,
                 "cache": meta,

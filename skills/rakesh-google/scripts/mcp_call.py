@@ -17,6 +17,7 @@ import http.client
 import json
 import os
 import pathlib
+import ssl
 import sys
 import time
 import uuid
@@ -28,10 +29,11 @@ from urllib.parse import urlparse
 # Inlined MCP Streamable HTTP transport (self-contained).
 PROTOCOL_VERSION = "2024-11-05"
 CLIENT_NAME = "rakesh-google-skill"
-CLIENT_VERSION = "1.3.0"
+CLIENT_VERSION = "1.3.1"
 
 # Connectivity faults worth one silent retry on a fresh connection.
-TRANSIENT_ERRORS = (http.client.RemoteDisconnected, ConnectionResetError, TimeoutError)
+# ssl.SSLError covers TLS EOF / premature TLS closes seen behind proxies (Zeabur, you.com).
+TRANSIENT_ERRORS = (http.client.RemoteDisconnected, ConnectionResetError, TimeoutError, ssl.SSLError)
 
 
 class McpError(RuntimeError):
