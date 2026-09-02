@@ -3,7 +3,7 @@ name: rakesh-adaptive-memory
 description: Persistent memory, semantic search, knowledge graph, and memory Q&A via the Adaptive Memory MCP server. Use when the user asks to recall past notes, store a new memory, query long-term knowledge, or traverse relationships between stored items.
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   category: mcp
   server: adaptive-memory
 ---

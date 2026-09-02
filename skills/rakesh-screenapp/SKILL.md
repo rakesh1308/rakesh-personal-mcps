@@ -3,7 +3,7 @@ name: rakesh-screenapp
 description: List ScreenApp recordings, fetch transcripts, inspect recording metadata, and ask questions about recording contents. Use when the user references a ScreenApp recording by ID, asks for a transcript, or wants to query what was said or shown in a recording.
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   category: mcp
   server: screenapp
 ---

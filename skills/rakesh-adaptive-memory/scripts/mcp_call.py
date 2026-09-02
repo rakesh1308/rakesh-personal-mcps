@@ -84,7 +84,7 @@ class HttpMcpClient:
         except URLError as exc:
             raise McpError(f"Could not connect to {self.endpoint}: {exc.reason}") from exc
         except TimeoutError as exc:
-            raise McpError(f"Timed out connecting to {self.endpoint} after {{self.timeout:g}}s") from exc
+            raise McpError(f"Timed out connecting to {self.endpoint} after {self.timeout:g}s") from exc
         if not raw.strip():
             return {}
         return _last_message(raw, request_id)
