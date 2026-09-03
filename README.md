@@ -1,8 +1,31 @@
 # rakesh-personal-mcps
 
-Five self-contained MCP (Model Context Protocol) skills for the MiniMax Agent
-platform. Each skill lives in its own folder so you can register them
-individually or all at once.
+Five remote MCP servers packaged for the MiniMax Agent platform **two ways**:
+
+1. **Native MCP** (preferred) — `.minimax-plugin/plugin.json` declares
+   `rakesh-mcp.mcp.json`, which registers all five servers with the runtime.
+   The runtime owns connection, reconnection, and secret injection; skills
+   just teach the agent *when and how* to use each toolset.
+2. **Bundled-script fallback** — each skill still ships the self-contained
+   `scripts/mcp_call.py` (stdlib-only MCP Streamable HTTP client). Works even
+   if the runtime ignores the plugin manifest; also usable from any shell.
+
+## Native MCP registration (Way 2)
+
+```
+minimax-custom-plugin/
+├── .minimax-plugin/
+│   └── plugin.json          ← schemaVersion 1, lists mcpServers + skills
+├── rakesh-mcp.mcp.json      ← the 5 MCP server configs
+└── skills/
+    └── rakesh-*/SKILL.md
+```
+
+- Servers on Zeabur are registered with no auth header — all four accept
+  anonymous calls (verified 2026-09-02).
+- `rakesh-you-search` uses `${YDC_API_KEY}` expansion; the full 6-tool set
+  requires the key (free profile = 2 tools).
+- Secrets are only ever `${VAR}` references — never literal values.
 
 ## Skills
 

@@ -1,0 +1,20 @@
+{
+  "rakesh-adaptive-memory": {
+    "url": "https://adaptivememory.zeabur.app/mcp"
+  },
+  "rakesh-brightdata": {
+    "url": "https://brightdata-mcp-server.zeabur.app/mcp"
+  },
+  "rakesh-google": {
+    "url": "https://google-mcp.zeabur.app/mcp"
+  },
+  "rakesh-screenapp": {
+    "url": "https://screenapp-mcp.zeabur.app/mcp"
+  },
+  "rakesh-you-search": {
+    "url": "https://api.you.com/mcp",
+    "headers": {
+      "Authorization": "Bearer ${YDC_API_KEY}"
+    }
+  }
+}

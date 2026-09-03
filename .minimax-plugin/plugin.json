@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "name": "rakesh-personal-mcps",
+  "displayName": "Rakesh Personal MCPs",
+  "version": "1.1.0",
+  "description": "Five remote MCP servers (You.com, Bright Data, Google, ScreenApp, Adaptive Memory) exposed natively via mcpServers, plus wrapper skills that teach the agent when and how to use each toolset.",
+  "author": "Rakesh",
+  "category": "Productivity",
+  "exampleQueries": [
+    "Search the web for the latest MiniMax models",
+    "Check my recent email and summarize it",
+    "What is on my calendar today",
+    "Remember this: prefer dark mode for all UI work",
+    "Recall what I said about the plugin architecture",
+    "Get the transcript of my latest ScreenApp recording"
+  ],
+  "apps": [],
+  "mcpServers": ["rakesh-mcp.mcp.json"],
+  "skills": [
+    "skills/rakesh-adaptive-memory/SKILL.md",
+    "skills/rakesh-brightdata/SKILL.md",
+    "skills/rakesh-google/SKILL.md",
+    "skills/rakesh-screenapp/SKILL.md",
+    "skills/rakesh-you-search/SKILL.md"
+  ]
+}
